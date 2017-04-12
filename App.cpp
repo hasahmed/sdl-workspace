@@ -1,7 +1,8 @@
 //==============================================================================
+#include <iostream>
 #include "App.h"
 #include "Log.h"
-
+#include "CSurface.h"
 App App::Instance;
 
 //==============================================================================
@@ -18,13 +19,13 @@ bool App::Init() {
     	Log("Unable to Init SDL: %s", SDL_GetError());
     	return false;
     }
-
+/*
     if(!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1")) {
         Log("Unable to Init hinting: %s", SDL_GetError());
     }
-
+*/
     if((Window = SDL_CreateWindow(
-    	"My SDL Game",
+    	"Operation Tetris",
     	SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
     	WindowWidth, WindowHeight, SDL_WINDOW_SHOWN)
     ) == NULL) {
@@ -32,15 +33,24 @@ bool App::Init() {
     	return false;
     }
 
-    PrimarySurface = SDL_GetWindowSurface(Window);
 
-    if((Renderer = SDL_CreateRenderer(Window, -1, SDL_RENDERER_ACCELERATED)) == NULL) {
-        Log("Unable to create renderer: %s", SDL_GetError());
+    PrimarySurface = SDL_GetWindowSurface(Window);
+    image = SDL_LoadBMP("finn.bmp");
+  //  secondarySurface = CSurface::OnLoad("blah.png");
+    if(image == NULL){
+        SDL_ClearError();
+        Log("Error creating secondary surface. Error");
         return false;
     }
-
-    SDL_SetRenderDrawColor(Renderer, 0x00, 0x00, 0x00, 0xFF);
-
+    SDL_BlitSurface(image, NULL, PrimarySurface, NULL);
+    SDL_UpdateWindowSurface(Window);
+/*
+    if((Renderer = SDL_CreateRenderer(Window, -1, SDL_RENDERER_ACCELERATED)) == NULL) {
+        Log("Unable to create renderer: %s", SDL_GetError());
+     //   return false;
+    }
+*/
+    SDL_SetRenderDrawColor(Renderer, 255, 0, 0, 0);
     return true;
 }
 
@@ -57,6 +67,8 @@ void App::Render() {
 
 //------------------------------------------------------------------------------
 void App::Cleanup() {
+    SDL_FreeSurface(PrimarySurface);
+    SDL_FreeSurface(image);
 	if(Renderer) {
 		SDL_DestroyRenderer(Renderer);
 		Renderer = NULL;
@@ -72,7 +84,7 @@ void App::Cleanup() {
 
 //------------------------------------------------------------------------------
 int App::Execute(int argc, char* argv[]) {
-	if(!Init()) return 0;
+    if(!Init()) return 0;
 
 	SDL_Event Event;
 
@@ -81,6 +93,21 @@ int App::Execute(int argc, char* argv[]) {
 			OnEvent(&Event);
 
 			if(Event.type == SDL_QUIT) Running = false;
+            if(Event.type == SDL_WINDOWEVENT){
+                if(Event.window.event == SDL_WINDOWEVENT_MOVED){
+                    SDL_Log("Window %d moved to %d,%d",
+                            Event.window.windowID, Event.window.data1,
+                            Event.window.data2);
+                }
+            }
+
+//keyboard
+        if(Event.type == SDL_KEYDOWN){
+
+            std::cout << Event.key.keysym.sym << "\n";
+        }
+
+
 		}
 
 		Loop();

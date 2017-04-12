@@ -21,9 +21,10 @@ class App {
 		SDL_Window* Window = NULL;
 		SDL_Renderer* Renderer = NULL;
 		SDL_Surface* PrimarySurface = NULL;
+        SDL_Surface *image = NULL;
 
-		static const int WindowWidth = 1024;
-		static const int WindowHeight = 768;
+		static const int WindowWidth = 400;
+		static const int WindowHeight = 400;
 
 	private:
 		App();
